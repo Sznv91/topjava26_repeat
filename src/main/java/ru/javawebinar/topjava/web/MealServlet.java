@@ -1,9 +1,9 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
+import ru.javawebinar.topjava.controller.MealController;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.util.Population;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,12 +21,13 @@ import static ru.javawebinar.topjava.util.Population.CALORIES_PER_DAY;
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    MealController controller = new MealController();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         log.debug("forward to meals");
         List<MealTo> mealToList = MealsUtil
-                .filteredByStreams(Population.getMealList()
+                .filteredByStreams(controller.readAll()
                         , LocalTime.of(0, 0), LocalTime.of(23, 59)
                         , CALORIES_PER_DAY);
         req.setAttribute("mealToList", mealToList);
