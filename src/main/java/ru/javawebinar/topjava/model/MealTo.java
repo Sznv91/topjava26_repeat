@@ -24,6 +24,10 @@ public class MealTo {
         this(null, dateTime, description, calories, excess);
     }
 
+    public Integer getUuid() {
+        return uuid;
+    }
+
     public LocalDateTime getDateTime() {
         return dateTime;
     }

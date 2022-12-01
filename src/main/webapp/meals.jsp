@@ -34,7 +34,7 @@
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <h2>Meals</h2>
-<p>Add Meal</p>
+<p><a href="meals?action=create">Add Meal</a></p>
 <br>
 <jsp:useBean id="formatter" scope="request" type="java.time.format.DateTimeFormatter"/>
 <jsp:useBean id="mealToList" scope="request" type="java.util.List<ru.javawebinar.topjava.model.MealTo>"/>
@@ -55,8 +55,8 @@
             <td style="color:${td_color};"><c:out value="${mealTo.dateTime.format(formatter)}"/></td>
             <td style="color:${td_color};"><c:out value="${mealTo.description}"/></td>
             <td style="color:${td_color};"><c:out value="${mealTo.calories}"/></td>
-            <td>Update</td>
-            <td>Delete</td>
+            <td><a href="meals?action=update&uuid=${mealTo.uuid}">Update</a></td>
+            <td><a href="meals?action=delete&uuid=${mealTo.uuid}">Delete</a></td>
         </tr>
     </c:forEach>
 </table>

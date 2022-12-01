@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.Population;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,16 +28,23 @@ public class InMemory implements MealDao {
 
     private void makePopulation() {
         log.debug("Populate InMemory DB");
-        warehouse.addAll(Population.getMealList());
+        Population.getMealList().forEach(this::create);
     }
 
     private final List<Meal> warehouse = new CopyOnWriteArrayList<>();
 
     public Meal create(Meal meal) {
         if (meal.getUuid() == null) {
-            meal.setUuid(UUID.randomUUID().clockSequence());
+            meal.setUuid(getUuid());
+        }
+        for (Meal mealTemp : warehouse) {
+            if (mealTemp.getUuid().equals(meal.getUuid())) {
+                log.error("can't create meal.UUID=" + mealTemp.getUuid() + " Already exist.");
+                throw new IllegalArgumentException("The meal with uuid " + mealTemp.getUuid() + " is already exist in the list.");
+            }
         }
         warehouse.add(meal);
+        counter = counter + 1;
         return meal;
     }
 
@@ -51,7 +59,9 @@ public class InMemory implements MealDao {
 
     public List<Meal> readAll() {
         log.debug("readAll from InmemoryDB");
-        return warehouse;
+        List<Meal> result = new CopyOnWriteArrayList<>(warehouse);
+        result.sort(Comparator.comparing(Meal::getDateTime));
+        return result;
     }
 
     public Meal update(Meal meal) {
@@ -75,5 +85,11 @@ public class InMemory implements MealDao {
             }
         }
         return false;
+    }
+
+    int counter = 0;
+
+    private int getUuid() {
+        return counter + 1;
     }
 }
