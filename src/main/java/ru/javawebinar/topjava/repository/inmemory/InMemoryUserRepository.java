@@ -57,12 +57,15 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User getByEmail(String email) {
-        for (User user : repository.values()) {
-            if (user.getEmail().equals(email)) {
-                log.info("getByEmail {}", email);
-                return user;
-            }
-        }
-        throw new NotFoundException("User with email: " + email + " not found in DB");
+        return repository.values().stream()
+                .filter(user -> user.getEmail().equals(email))
+                .collect(Collectors.collectingAndThen(Collectors.toList()
+                        , list -> {
+                            if (list.size() != 1) {
+                                throw new NotFoundException("User with email: " + email + " not found in DB");
+                            }
+                            log.info("getByEmail {}", email);
+                            return list.get(0);
+                        }));
     }
 }
