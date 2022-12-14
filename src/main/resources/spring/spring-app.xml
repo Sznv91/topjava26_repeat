@@ -9,7 +9,8 @@
         <constructor-arg name="repository" ref="inmemoryUserRepository"/>
     </bean>
 -->
-    <context:component-scan base-package="ru.javawebinar.**.repository.jdbc"/>
+    <import resource="repo-config/inmemory-repo.xml"/>
+    <import resource="repo-config/spring-jdbc-repo.xml"/>
 
     <context:component-scan base-package="ru.javawebinar.**.service"/>
 

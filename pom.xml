@@ -137,6 +137,26 @@
     </dependencies>
 
     <profiles>
+        <profile>
+            <id>InMemory</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>spring.profiles.active</name>
+                    <value>inMemory</value>
+                </property>
+            </activation>
+        </profile>
+        <profile>
+            <id>spring JDBC</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>spring.profiles.active</name>
+                    <value>springJdbc</value>
+                </property>
+            </activation>
+        </profile>
     </profiles>
 
     <dependencyManagement>
