@@ -34,19 +34,21 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-//        Meal meal = em.find(Meal.class, id);
-//        Meal meal = em.createQuery("SELECT m FROM Meal m LEFT JOIN FETCH m.user WHERE m.id=:id", Meal.class).setParameter("id", id)/*.setParameter("user_id", userId)*/.getSingleResult();
-        Meal meal = em.createQuery("SELECT m FROM Meal m WHERE m.id=:id AND m.user.id=:user_id", Meal.class).setParameter("id", id).setParameter("user_id", userId).getSingleResult();
-        return meal;
-        /*if (meal.getUser().getId().equals(userId)) {
-            return meal;
-        }*/
-//        return null;
+        List<Meal> meals = em.createQuery(
+                        "SELECT m FROM Meal m " +
+                                "WHERE m.id=:id AND m.user.id=:user_id", Meal.class)
+                .setParameter("id", id)
+                .setParameter("user_id", userId).getResultList();
+        if (meals.size() > 0) {
+            return meals.get(0);
+        }
+        return null;
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return null;
+        return em.createQuery("SELECT m FROM Meal m WHERE m.user.id=:user_id ORDER BY m.dateTime DESC ", Meal.class)
+                .setParameter("user_id", userId).getResultList();
     }
 
     @Override

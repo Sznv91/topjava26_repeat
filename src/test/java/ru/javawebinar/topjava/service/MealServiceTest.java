@@ -66,6 +66,12 @@ public class MealServiceTest {
     public void get() {
         Meal actual = service.get(ADMIN_MEAL_ID, ADMIN_ID);
         MEAL_MATCHER.assertMatch(actual, adminMeal1);
+        /*adminMeal1.setUser(UserTestData.admin);
+        Assert.assertEquals(adminMeal1.getId(), actual.getId());
+        Assert.assertEquals(adminMeal1.getDateTime(), actual.getDateTime());
+        Assert.assertEquals(adminMeal1.getDescription(), actual.getDescription());
+        Assert.assertEquals(adminMeal1.getCalories(), actual.getCalories());
+        Assert.assertEquals(adminMeal1.getUser().getId(), actual.getUser().getId());*/
     }
 
     @Test
