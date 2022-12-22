@@ -28,9 +28,12 @@ public class JpaMealRepository implements MealRepository {
             //EntityExistsException - if the entity already exists.
             em.persist(meal);
             return meal;
-        }
-        if (meal.getUser() != null && meal.getUser().getId().equals(userId)) {
-            return em.merge(meal);
+        } else {
+            Meal fromDb = em.find(Meal.class, meal.getId());
+            if (fromDb.getUser().getId().equals(userId)){
+                meal.setUser(em.getReference(User.class, userId));
+                return em.merge(meal);
+            }
         }
         return null;
     }
