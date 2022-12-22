@@ -8,7 +8,6 @@ import ru.javawebinar.topjava.repository.MealRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class JpaMealRepository implements MealRepository {
             return meal;
         } else {
             Meal fromDb = em.find(Meal.class, meal.getId());
-            if (fromDb.getUser().getId().equals(userId)){
+            if (fromDb.getUser().getId().equals(userId)) {
                 return em.merge(meal);
             }
         }
@@ -40,17 +39,16 @@ public class JpaMealRepository implements MealRepository {
     @Override
     @Transactional
     public boolean delete(int id, int userId) {
-        return em.createQuery("DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:user_id")
-                .setParameter("id", id)
-                .setParameter("user_id", userId)
-                .executeUpdate() != 0;
+        return em.createNamedQuery(Meal.DELETE).setParameter("id", id).setParameter("user_id", userId).executeUpdate() != 0;
     }
 
+    /**
+     * Don't use .getSingleResult because that throw
+     * NoResultException – if there is no result
+     */
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = em.createQuery(
-                        "SELECT m FROM Meal m " +
-                                "WHERE m.id=:id AND m.user.id=:user_id", Meal.class)
+        List<Meal> meals = em.createNamedQuery(Meal.GET, Meal.class)
                 .setParameter("id", id)
                 .setParameter("user_id", userId).getResultList();
         if (meals.size() > 0) {
@@ -61,15 +59,13 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return em.createQuery("SELECT m FROM Meal m WHERE m.user.id=:user_id ORDER BY m.dateTime DESC ", Meal.class)
+        return em.createNamedQuery(Meal.ALL_SORTED, Meal.class)
                 .setParameter("user_id", userId).getResultList();
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return em.createQuery(
-                        "SELECT m FROM Meal m WHERE m.user.id=:user_id AND m.dateTime >= :start_date_time AND m.dateTime < :end_date_time ORDER BY m.dateTime DESC"
-                        , Meal.class)
+        return em.createNamedQuery(Meal.GET_BETWEEN_HALF_OPEN, Meal.class)
                 .setParameter("user_id", userId)
                 .setParameter("start_date_time", startDateTime)
                 .setParameter("end_date_time", endDateTime)
