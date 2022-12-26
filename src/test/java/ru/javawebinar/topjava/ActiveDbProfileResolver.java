@@ -8,6 +8,6 @@ public class ActiveDbProfileResolver implements ActiveProfilesResolver {
     @Override
     public @NonNull
     String[] resolve(@NonNull Class<?> aClass) {
-        return new String[]{Profiles.getActiveDbProfile()};
+        return new String[]{Profiles.getActiveDbProfile(), Profiles.REPOSITORY_IMPLEMENTATION};
     }
 }
