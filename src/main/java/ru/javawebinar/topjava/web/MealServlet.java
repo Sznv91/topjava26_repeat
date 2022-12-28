@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.StringUtils;
+import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
@@ -27,7 +29,13 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void init() {
-        springContext = new ClassPathXmlApplicationContext("spring/spring-app.xml", "spring/spring-db.xml");
+//        System.setProperty("spring.profiles.active", "datajpa,postgres");
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext();
+        ResourceBundle resource = ResourceBundle.getBundle("profile");
+        context.getEnvironment().setActiveProfiles(resource.getString("repo.implement"), Profiles.getActiveDbProfile());
+        context.setConfigLocations("spring/spring-app.xml", "spring/spring-db.xml");
+        context.refresh();
+        springContext = context;
         mealController = springContext.getBean(MealRestController.class);
     }
 

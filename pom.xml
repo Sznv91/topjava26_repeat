@@ -67,6 +67,13 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+        </resource>
+        </resources>
     </build>
 
     <dependencies>
@@ -224,6 +231,48 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+        </profile>
+
+        <profile>
+            <id>jdbc</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>spring.profiles.active</name>
+                    <value>jdbc</value>
+                </property>
+            </activation>
+            <properties>
+                <repository_implement>jdbc</repository_implement>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>datajpa</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>spring.profiles.active</name>
+                    <value>datajpa</value>
+                </property>
+            </activation>
+            <properties>
+                <repository_implement>datajpa</repository_implement>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>jpa</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>spring.profiles.active</name>
+                    <value>jpa</value>
+                </property>
+            </activation>
+            <properties>
+                <repository_implement>jpa</repository_implement>
+            </properties>
         </profile>
     </profiles>
 
