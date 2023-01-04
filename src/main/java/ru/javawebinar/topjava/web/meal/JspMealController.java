@@ -7,8 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -34,47 +36,51 @@ public class JspMealController {
     private MealService service;
 
     @GetMapping
-    public String get(Model model, HttpServletRequest request) {
-        String action = request.getParameter("action");
+    public String get(Model model) {
         int userId = SecurityUtil.authUserId();
+        log.info("getAll meal for user {}", userId);
+        model.addAttribute("meals", MealsUtil.getTos(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay()));
+        return "meals";
+    }
 
-        switch (action == null ? "all" : action) {
-            case "delete" -> {
-                int id = Integer.parseInt(request.getParameter("id"));
-                log.info("delete meal {} for user {}", id, userId);
-                service.delete(id, userId);
-                return "redirect:meals";
-            }
-            case "create", "update" -> {
-                int id = -1;
-                if (request.getParameter("id") != null && !request.getParameter("id").isEmpty()) {
-                    id = Integer.parseInt(request.getParameter("id"));
-                }
+    @GetMapping(value = "/{id}/delete")
+    public String delete(@PathVariable("id") int id) {
+        int userId = SecurityUtil.authUserId();
+        log.info("delete meal {} for user {}", id, userId);
+        service.delete(id, userId);
+        return "redirect:/meals";
+    }
 
-                final Meal meal = "create".equals(action) ?
-                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
-                        service.get(id, userId);
-                model.addAttribute("meal", meal);
-                log.info(action + " meal {} for user {}", meal, userId);
-                return "mealForm";
-            }
-            case "filter" -> {
-                LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
-                LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
-                LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
-                LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
-                log.info("getBetween dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, userId);
-                List<Meal> mealsDateFiltered = service.getBetweenInclusive(startDate, endDate, userId);
-                model.addAttribute("meals", MealsUtil.getFilteredTos(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime));
-                return "meals";
-            }
+    @GetMapping(value = "/{id}/update")
+    public String update(@PathVariable("id") int id, Model model) {
+        Meal meal = service.get(id, SecurityUtil.authUserId());
+        model.addAttribute("meal", meal);
+        log.info("update meal {} for user {}", meal, SecurityUtil.authUserId());
+        return "/mealForm";
+    }
 
-            default -> {
-                log.info("getAll meal for user {}", userId);
-                model.addAttribute("meals", MealsUtil.getTos(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay()));
-                return "meals";
-            }
-        }
+    @GetMapping(value = "/create")
+    public String create(Model model) {
+        Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000);
+        model.addAttribute("meal", meal);
+        log.info("create form");
+        return "/mealForm";
+    }
+
+    @GetMapping(value = "/filter")
+    public String filtered(Model model
+            , @RequestParam("startDate") String startDateSt
+            , @RequestParam("endDate") String endDateSt
+            , @RequestParam("startTime") String startTimeSt
+            , @RequestParam("endTime") String endTimeSt) {
+        LocalDate startDate = parseLocalDate(startDateSt);
+        LocalDate endDate = parseLocalDate(endDateSt);
+        LocalTime startTime = parseLocalTime(startTimeSt);
+        LocalTime endTime = parseLocalTime(endTimeSt);
+        log.info("getBetween dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, SecurityUtil.authUserId());
+        List<Meal> mealsDateFiltered = service.getBetweenInclusive(startDate, endDate, SecurityUtil.authUserId());
+        model.addAttribute("meals", MealsUtil.getFilteredTos(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime));
+        return "/meals";
     }
 
     @PostMapping
