@@ -22,6 +22,7 @@
 
     <logger name="ru.javawebinar.topjava" level="debug"/>
     <logger name="org.springframework.web.servlet" level="debug"/>
+    <logger name="org.springframework.web" level="debug"/>
 
     <root level="info">
         <appender-ref ref="file"/>
